@@ -9,10 +9,9 @@ import jade.wrapper.AgentController;
 public class InstantiatorAgent extends Agent {
 
 	  protected void setup() {
-		  
-	        createAgent("Camera-1", "tuto.first.CameraAgent");
-	        createAgent("Classifier-1", "tuto.first.ClassifierAgent");
-	        createAgent("Nutrition-1", "tuto.first.NutritionAgent");
+		  createAgent("Camera-1", "tuto.first.CameraAgent");
+	      createAgent("Classifier-1", "tuto.first.ClassifierAgent");
+	      createAgent("Nutrition-1", "tuto.first.NutritionAgent");
 	  }
 
 	  private void createAgent(String name, String className) {
