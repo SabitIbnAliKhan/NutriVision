@@ -8,5 +8,6 @@ public class Constants {
 	public static String ClassifierService = "classifier_service";
 	public static String LabelSend = "label_conversation";
 	public static String NutritionService = "nutrition_service";
+	public static String GatewayService = "gateway_service";
 	public static String CalorieSend = "calorie_conversation";
 }
