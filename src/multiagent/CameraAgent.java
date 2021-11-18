@@ -55,7 +55,7 @@ public class CameraAgent extends ServiceAgent{
 	        case 1:
 	        	//send ClassifierAgent the base64 converted image
 	            sendMsg("Here is the Base-64 image", "image_transfer", ACLMessage.REQUEST, myAgent.classifierAgents);
-	            stateCounter = 2;
+	            stateCounter = 20;
 	            break;
 			}
 		}
