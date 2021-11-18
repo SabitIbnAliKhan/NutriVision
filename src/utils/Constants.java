@@ -1,4 +1,4 @@
-package main;
+package utils;
 
 public class Constants {
 	public static String InterfaceService = "interface_service";
