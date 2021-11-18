@@ -9,20 +9,20 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import utils.Constants;
 
 public class ClassifierAgent extends ServiceAgent{
 
 	@Override
 	protected void setup() {
-	      System.out.printf("Classifier %s is initialized%n", getLocalName());
-	      register("classifier_service");
+	      register(Constants.ClassifierService);
 	      addBehaviour(new ClassifierBehaviour());
 	}
 	
 	private class ClassifierBehaviour extends SimpleBehaviour{
 		
 	    private boolean finished = false;
-	    private int stateCounter = 0; //changes to 0 when case 0 is taken from interfaceAgent
+	    private int stateCounter = 0; 
 	    
 		public ClassifierBehaviour(){
 			super(ClassifierAgent.this);
@@ -37,10 +37,9 @@ public class ClassifierAgent extends ServiceAgent{
 	        switch(stateCounter) {
 	        case 0: 
 	        	//listening for image base64 from CameraAgent
-	            //listening for game REQUEST
 	            template = MessageTemplate.and(
 	                      MessageTemplate.MatchPerformative(ACLMessage.REQUEST),
-	                      MessageTemplate.MatchConversationId("image_transfer"));
+	                      MessageTemplate.MatchConversationId(Constants.ImageSend));
 	            msg = myAgent.blockingReceive(template);
 	            if(msg != null) {
 	              System.out.println(getLocalName() + " received an image");
@@ -49,10 +48,17 @@ public class ClassifierAgent extends ServiceAgent{
 	            }
 	          break;
 	        case 1:
-	        	//send NutritionAgent & GatewayAgent the base64 to get label later
-	            //  sendMsg("Here is the Base-64 image", "image_transfer_2", ACLMessage.INFORM, gateWayAgent);
-		        //  sendMsg("Here is the Label", "label_transfer", ACLMessage.INFORM, nutritionAgent);
-
+	        	//send GatewayAgent the base64 to request label
+	        	stateCounter = 2;
+	        	break;
+	        case 2:
+	        	//wait for label from Gateway
+	        	stateCounter = 3;
+	        	break;
+	        case 3:
+	        	//send NutritionAgent the label
+	        	finished = true;
+	        	break;
 			}
 		}
 		

@@ -11,6 +11,7 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import utils.Constants;
 
 public class CameraAgent extends ServiceAgent{
 	
@@ -19,11 +20,10 @@ public class CameraAgent extends ServiceAgent{
 	
 	@Override
 	protected void setup() {
-	      System.out.printf("Camera %s is initialized%n", getLocalName());
-	      register("image_service");
+	      register(Constants.CameraService);
 	      addBehaviour(new TickerBehaviour (this, 2000) {
 	          protected void onTick() {
-	        	  classifierAgents = searchForService("classifier_service");
+	        	  classifierAgents = searchForService(Constants.ClassifierService);
 	            if (classifierAgents.size() >= 1) {
 	                stop();
 	      	      addBehaviour(new CameraBehaviour());
@@ -54,8 +54,9 @@ public class CameraAgent extends ServiceAgent{
 	        	break;
 	        case 1:
 	        	//send ClassifierAgent the base64 converted image
-	            sendMsg("Here is the Base-64 image", "image_transfer", ACLMessage.REQUEST, myAgent.classifierAgents);
-	            stateCounter = 20;
+	            sendMsg("Here is the Base-64 image", Constants.ImageSend, ACLMessage.REQUEST, myAgent.classifierAgents);
+	            stateCounter = 2;
+	            finished = true;
 	            break;
 			}
 		}
@@ -71,7 +72,7 @@ public class CameraAgent extends ServiceAgent{
             myAgent.send(msg);
           }
         
-        //add method to convert img to bin-64
+        //add method to convert image to bin-64
         
 		@Override
 		public boolean done() {

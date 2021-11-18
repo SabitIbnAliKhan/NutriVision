@@ -20,7 +20,6 @@ public class NutritionAgent extends ServiceAgent{
 
 	@Override
 	protected void setup() {
-	      System.out.printf("NutritionAgent %s is initialized%n", getLocalName());
 	      register(Constants.NutritionService);
 	      addBehaviour(new TickerBehaviour (this, 2000) {
 	          protected void onTick() {

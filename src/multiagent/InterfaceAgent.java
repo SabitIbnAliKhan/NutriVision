@@ -11,13 +11,12 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class InterfaceAgent extends Agent {
+public class InterfaceAgent extends ServiceAgent {
 
 	public Set<AID> classifierAgents = new HashSet<>();
 
 	@Override
 	protected void setup() {
-		System.out.printf("Interface Agent %s has been initialized%n", getLocalName());
 	}
 	
 }

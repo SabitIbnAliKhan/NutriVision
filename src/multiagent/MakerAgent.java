@@ -12,17 +12,17 @@ public class MakerAgent extends Agent {
 
 	protected void setup() {
 		System.out.println("Hello World! Jade has been Booted...");
-		Object[] args = getArguments();
-		int number = Integer.parseInt((String) args[0]);
+//		Object[] args = getArguments();
+//		int number = Integer.parseInt((String) args[0]);
 		
 		try { TimeUnit.SECONDS.sleep(2); } catch (InterruptedException e) { e.printStackTrace(); }
 
-		System.out.println("\nMakerAgent: Created with number " + number);
+//		System.out.println("\nMakerAgent: Created with number " + number);
 
 		createAgent("InterfaceAgent", "multiagent.InterfaceAgent");
-		//		  createAgent("Camera-1", "tuto.first.CameraAgent");
-		//	      createAgent("Classifier-1", "tuto.first.ClassifierAgent");
-		//	      createAgent("Nutrition-1", "tuto.first.NutritionAgent");
+		createAgent("Camera-1", "multiagent.CameraAgent");
+	    createAgent("Classifier-1", "multiagent.ClassifierAgent");
+	    createAgent("Nutrition-1", "multiagent.NutritionAgent");
 	}
 
 	private void createAgent(String name, String className) {
