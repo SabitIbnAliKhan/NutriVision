@@ -10,6 +10,7 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import swingui.SwingMain;
 import utils.Constants;
 
 public class InterfaceAgent extends ServiceAgent {
@@ -30,6 +31,8 @@ public class InterfaceAgent extends ServiceAgent {
 				}
 			}
 		});
+		
+		new SwingMain();
 	}
 
 	private class InterfaceBehaviour extends SimpleBehaviour {
