@@ -35,7 +35,7 @@ public class CameraAgent extends ServiceAgent{
 	private class CameraBehaviour extends SimpleBehaviour{
 		private CameraAgent myAgent;
 	    private boolean finished = false;
-	    private int stateCounter = 1; //changes to 0 when case 0 is taken from interfaceAgent
+	    private int stateCounter = 0; //changes to 0 when case 0 is taken from interfaceAgent
 	    
 		public CameraBehaviour(){
 			super(CameraAgent.this);
@@ -50,9 +50,13 @@ public class CameraAgent extends ServiceAgent{
 	        switch(stateCounter) {
 	        case 0: 
 	        	//listening for image input from Interface
+	        	stateCounter = 1;
+	        	break;
 	        case 1:
 	        	//send ClassifierAgent the base64 converted image
 	            sendMsg("Here is the Base-64 image", "image_transfer", ACLMessage.REQUEST, myAgent.classifierAgents);
+	            stateCounter = 2;
+	            break;
 			}
 		}
 		
