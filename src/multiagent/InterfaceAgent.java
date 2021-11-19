@@ -1,7 +1,5 @@
 package multiagent;
 
-import jade.core.Agent;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +22,7 @@ public class InterfaceAgent extends ServiceAgent {
 			protected void onTick() {
 				cameraAgents = searchForService(Constants.CameraService);
 				nutritionAgents = searchForService(Constants.NutritionService);
-				if (cameraAgents.size() >= 1 && nutritionAgents.size() >= 1) {
+				if (cameraAgents.size() > 0 && nutritionAgents.size() > 0) {
 					stop();
 					addBehaviour(new InterfaceBehaviour());
 				}
@@ -41,7 +39,7 @@ public class InterfaceAgent extends ServiceAgent {
 		public InterfaceBehaviour() {
 			super(InterfaceAgent.this);
 			myAgent = InterfaceAgent.this;
-			
+
 		}
 
 		@Override
@@ -52,25 +50,30 @@ public class InterfaceAgent extends ServiceAgent {
 			switch (stateCounter) {
 			case 0:
 				// wait for input from swingUI
-				
+				System.out.println("Interface: case0 - Waiting for input from SwingUI");
 				break;
 			case 1:
-				sendMsg("path/to/image/file.png", Constants.ImageSend, ACLMessage.REQUEST, myAgent.cameraAgents);
 				// send image file path from swingUI to CameraAgent
+				sendMsg("path/to/image/file.png", Constants.ImageSend, ACLMessage.INFORM, myAgent.cameraAgents);
+				System.out.println("Interface: case1 - Image path sent to CameraAgent");
+				stateCounter = 2;
 				break;
 			case 2:
 				// wait for processing and reply from NutritionAgent
+				System.out.println("Interface: case2 - waiting for reply from NutritionAgent");
+				stateCounter = 3;
 				break;
 			case 3:
 				// send back calorie data from NutritionAgent to swingUI
+				System.out.println("Interface: case3 - Calorie data sent to swingUI");
 				stateCounter = 0;
 				break;
 			default:
-				System.out.println("Interface: Invalid state. Resetting to 0");
+				System.out.println("Interface: caseError - Invalid state. Resetting to 0");
 				break;
 			}
 		}
-		
+
 		private void sendMsg(String content, String conversationId, int type, Set<AID> receivers) {
 			ACLMessage msg = new ACLMessage(type);
 			msg.setContent(content);

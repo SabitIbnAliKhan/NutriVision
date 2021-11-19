@@ -1,7 +1,5 @@
 package multiagent;
 
-import jade.core.Agent;
-
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +33,7 @@ public class CameraAgent extends ServiceAgent {
 		private CameraAgent myAgent;
 		private boolean finished = false;
 		private int stateCounter = 0; // changes to 0 when case 0 is taken from interfaceAgent
-		
+
 		// Image processing variables
 
 		public CameraBehaviour() {
@@ -51,7 +49,7 @@ public class CameraAgent extends ServiceAgent {
 			switch (stateCounter) {
 			case 0:
 				// listening for image input from Interface
-				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.REQUEST),
+				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
 						MessageTemplate.MatchConversationId(Constants.ImageSend));
 				msg = myAgent.blockingReceive(template);
 				if (msg != null) {
@@ -59,13 +57,14 @@ public class CameraAgent extends ServiceAgent {
 					System.out.println("This image is: " + msg.getContent());
 					stateCounter = 1;
 				}
-				stateCounter = 1;
+				// stateCounter = 1;
 				break;
 			case 1:
 				// send ClassifierAgent the base64 converted image
 				sendMsg("data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA\n"
-						+ "    AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO\n"
-						+ "        9TXL0Y4OHwAAAABJRU5ErkJggg==", Constants.Base64Send, ACLMessage.REQUEST, myAgent.classifierAgents);
+						+ "AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO\n"
+						+ "9TXL0Y4OHwAAAABJRU5ErkJggg==", Constants.Base64Send, ACLMessage.REQUEST,
+						myAgent.classifierAgents);
 				stateCounter = 2;
 				finished = true;
 				break;
