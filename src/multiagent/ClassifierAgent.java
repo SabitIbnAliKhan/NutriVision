@@ -1,6 +1,7 @@
 package multiagent;
 
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
 import java.util.Set;
 
 import jade.core.AID;
@@ -13,16 +14,34 @@ import utils.Constants;
 
 public class ClassifierAgent extends ServiceAgent {
 
+	
+	public Set<AID> nutritionAgents = new HashSet<>();
+	public Set<AID> gatewayAgents = new HashSet<>();
+
 	@Override
 	protected void setup() {
 		register(Constants.ClassifierService);
-		addBehaviour(new ClassifierBehaviour());
+	      addBehaviour(new TickerBehaviour (this, 2000) {
+	          protected void onTick() {
+	        	  gatewayAgents = searchForService(Constants.GatewayService);
+	        	  nutritionAgents = searchForService(Constants.NutritionService);
+	        	//we only need one agent created per agent type
+	            if (gatewayAgents.size() > 0 && nutritionAgents.size() > 0) { 
+	                stop();
+	      	      addBehaviour(new ClassifierBehaviour());
+	            }
+	          }
+	        });
+		
 	}
 
 	private class ClassifierBehaviour extends SimpleBehaviour {
 
 		private boolean finished = false;
 		private int stateCounter = 0;
+		private String serializedImage = null;
+		private String label = null;
+		private ClassifierAgent myAgent;
 
 		public ClassifierBehaviour() {
 			super(ClassifierAgent.this);
@@ -37,25 +56,34 @@ public class ClassifierAgent extends ServiceAgent {
 			switch (stateCounter) {
 			case 0:
 				// listening for image base64 from CameraAgent
-				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.REQUEST),
-						MessageTemplate.MatchConversationId(Constants.ImageSend));
+				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+						MessageTemplate.MatchConversationId(Constants.Base64Send));
 				msg = myAgent.blockingReceive(template);
 				if (msg != null) {
-					System.out.println(getLocalName() + " received an image");
-					System.out.println("This image is: " + msg.getContent());
+					System.out.println(getLocalName() + " received a serialized image");
+					serializedImage = msg.getContent();
 					stateCounter = 1;
 				}
 				break;
 			case 1:
-				// send GatewayAgent the base64 to request label
+				// send GatewayAgent the base64 to get label
+				sendMsg(serializedImage, Constants.Base64Send, ACLMessage.INFORM,myAgent.gatewayAgents);
 				stateCounter = 2;
 				break;
 			case 2:
 				// wait for label from Gateway
-				stateCounter = 3;
+				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+						MessageTemplate.MatchConversationId(Constants.LabelSend));
+				msg = myAgent.blockingReceive(template);
+				if (msg != null) {
+					System.out.println(getLocalName() + " received the label");
+					label = msg.getContent();
+					stateCounter = 3;
+				}
 				break;
 			case 3:
 				// send NutritionAgent the label
+				sendMsg(label, Constants.LabelSend, ACLMessage.INFORM,myAgent.nutritionAgents);
 				finished = true;
 				break;
 			}
@@ -65,7 +93,6 @@ public class ClassifierAgent extends ServiceAgent {
 			ACLMessage msg = new ACLMessage(type);
 			msg.setContent(content);
 			msg.setConversationId(conversationId);
-			// add receivers
 			for (AID agent : receivers) {
 				msg.addReceiver(agent);
 			}

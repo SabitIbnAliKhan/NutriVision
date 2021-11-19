@@ -26,7 +26,7 @@ public class NutritionAgent extends ServiceAgent{
 	        	  gatewayAgents = searchForService(Constants.GatewayService);
 	        	  interfaceAgents = searchForService(Constants.InterfaceService);
 	        	//we only need one agent created per agent type
-	            if (gatewayAgents.size() >= 1 || interfaceAgents.size() >=1) { 
+	            if (gatewayAgents.size() > 0 && interfaceAgents.size() > 0) { 
 	                stop();
 	      	      addBehaviour(new NutritionBehaviour());
 	            }
