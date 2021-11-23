@@ -2,6 +2,7 @@ package multiagent;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
@@ -29,7 +30,6 @@ public class InterfaceAgent extends ServiceAgent {
 				}
 			}
 		});
-		
 		new SwingMain();
 	}
 
@@ -38,6 +38,7 @@ public class InterfaceAgent extends ServiceAgent {
 		private InterfaceAgent myAgent;
 		private boolean finished = false;
 		private int stateCounter = 0;
+		private String nutriDataString = "nothing yet";
 
 		public InterfaceBehaviour() {
 			super(InterfaceAgent.this);
@@ -53,26 +54,39 @@ public class InterfaceAgent extends ServiceAgent {
 			switch (stateCounter) {
 			case 0:
 				// wait for input from swingUI
-				System.out.println("Interface: case0 - Waiting for input from SwingUI");
+				System.out.println(getLocalName() + " case0 - Waiting for input from SwingUI");
+				try {
+					TimeUnit.SECONDS.sleep(2);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				stateCounter = 1;
 				break;
 			case 1:
 				// send image file path from swingUI to CameraAgent
-				sendMsg("path/to/image/file.png", Constants.ImageSend, ACLMessage.INFORM, myAgent.cameraAgents);
-				System.out.println("Interface: case1 - Image path sent to CameraAgent");
+				sendMsg("/Users/jakfromspace/Downloads/pasta-bowl.jpg", Constants.ImageSend, ACLMessage.INFORM,
+						myAgent.cameraAgents);
+				System.out.println(getLocalName() + " case1 - Image path sent to CameraAgent");
 				stateCounter = 2;
 				break;
 			case 2:
 				// wait for processing and reply from NutritionAgent
-				System.out.println("Interface: case2 - waiting for reply from NutritionAgent");
-				stateCounter = 3;
+				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+						MessageTemplate.MatchConversationId(Constants.ImageSend));
+				msg = myAgent.blockingReceive(template);
+				if (msg != null) {
+					System.out.println(getLocalName() + " case2 - received reply from NutritionAgent");
+					nutriDataString = msg.getContent();
+					stateCounter = 3;
+				}
 				break;
 			case 3:
 				// send back calorie data from NutritionAgent to swingUI
-				System.out.println("Interface: case3 - Calorie data sent to swingUI");
-				stateCounter = 0;
+				System.out.println(getLocalName() + " case3 - Calorie data sent to swingUI");
 				break;
 			default:
-				System.out.println("Interface: caseError - Invalid state. Resetting to 0");
+				System.out.println(getLocalName() + " caseError - Invalid state. Resetting to 0");
+				stateCounter = 0;
 				break;
 			}
 		}

@@ -1,7 +1,6 @@
 package multiagent;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -42,14 +41,14 @@ public class CameraAgent extends ServiceAgent {
 		private boolean finished = false;
 		private BufferedImage image = null;
 		private String imagePath = null;
-		private int stateCounter = 0; 
+		private int stateCounter = 0;
 		private final String formatName = "jpg";
 
 		public CameraBehaviour() {
 			super(CameraAgent.this);
 			myAgent = CameraAgent.this;
 		}
-		
+
 		@Override
 		public void action() {
 			ACLMessage msg, reply;
@@ -70,7 +69,10 @@ public class CameraAgent extends ServiceAgent {
 			case 1:
 				// send ClassifierAgent the base64 converted image
 				image = readImage(imagePath);
-				sendMsg(imgToBase64String(image,formatName), Constants.Base64Send, ACLMessage.INFORM,myAgent.classifierAgents);
+				String b64img = imgToBase64String(image, formatName);
+				sendMsg(b64img, Constants.Base64Send, ACLMessage.INFORM, myAgent.classifierAgents);
+				System.out.println(getLocalName() + " sent base64 to Classifier");
+				System.out.println("base64 img:\n" + b64img + "\n--END--");
 				finished = true;
 				break;
 			}
@@ -85,38 +87,30 @@ public class CameraAgent extends ServiceAgent {
 			}
 			myAgent.send(msg);
 		}
-		
-		//image to Base64
-		public static String imgToBase64String(final BufferedImage img, final String formatName)
-		{
-		  final ByteArrayOutputStream os = new ByteArrayOutputStream();
-		  try
-		  {
-		    ImageIO.write(img, formatName, os);
-		    return Base64.getEncoder().encodeToString(os.toByteArray());
-		  }
-		  catch (final IOException ioe)
-		  {
-		    throw new UncheckedIOException(ioe);
-		  }
+
+		// image to Base64
+		public static String imgToBase64String(final BufferedImage img, final String formatName) {
+			final ByteArrayOutputStream os = new ByteArrayOutputStream();
+			try {
+				ImageIO.write(img, formatName, os);
+				return Base64.getEncoder().encodeToString(os.toByteArray());
+			} catch (final IOException ioe) {
+				throw new UncheckedIOException(ioe);
+			}
 		}
-		
-		//read image from path
-		public BufferedImage readImage(String path)
-		{
+
+		// read image from path
+		public BufferedImage readImage(String path) {
 			BufferedImage img = null;
-			try 
-			{
-			    img = ImageIO.read(new File(path));
-			    return img;
-			} 
-			catch (IOException e) 
-			{
-			    e.printStackTrace();
+			try {
+				img = ImageIO.read(new File(path));
+				return img;
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 			return img;
 		}
-		
+
 		@Override
 		public boolean done() {
 			return finished;
