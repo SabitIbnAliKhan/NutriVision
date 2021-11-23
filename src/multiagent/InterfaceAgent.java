@@ -6,22 +6,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import swingui.SwingMain;
 import utils.Constants;
-//package swingui;
 
 public class InterfaceAgent extends ServiceAgent {
 
@@ -41,7 +40,6 @@ public class InterfaceAgent extends ServiceAgent {
 				}
 			}
 		});
-		new SwingMain();
 	}
 
 	private class InterfaceBehaviour extends SimpleBehaviour {
@@ -49,12 +47,15 @@ public class InterfaceAgent extends ServiceAgent {
 		private InterfaceAgent myAgent;
 		private boolean finished = false;
 		private int stateCounter = 0;
+		private boolean isImgPathReady = false;
+		private String imgPath = "none";
 		private String nutriDataString = "nothing yet";
 
 		public InterfaceBehaviour() {
 			super(InterfaceAgent.this);
 			myAgent = InterfaceAgent.this;
-
+			new SwingMain();
+			System.out.println(getLocalName() + " case0 - Waiting for input from SwingUI");
 		}
 
 		@Override
@@ -65,18 +66,14 @@ public class InterfaceAgent extends ServiceAgent {
 			switch (stateCounter) {
 			case 0:
 				// wait for input from swingUI
-				System.out.println(getLocalName() + " case0 - Waiting for input from SwingUI");
-				try {
-					TimeUnit.SECONDS.sleep(2);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				if (isImgPathReady) {
+					stateCounter = 1;
+					isImgPathReady = false;
 				}
-				stateCounter = 1;
 				break;
 			case 1:
 				// send image file path from swingUI to CameraAgent
-				sendMsg("C:/Users/Ahmad Masri/git/NutriVision/NutriVision/pasta-bowl.jpg", Constants.ImageSend, ACLMessage.INFORM,
-						myAgent.cameraAgents);
+				sendMsg(imgPath, Constants.ImageSend, ACLMessage.INFORM, myAgent.cameraAgents);
 				System.out.println(getLocalName() + " case1 - Image path sent to CameraAgent");
 				stateCounter = 2;
 				break;
@@ -118,43 +115,67 @@ public class InterfaceAgent extends ServiceAgent {
 			return finished;
 		}
 
-		public class SwingMain implements ActionListener {
+		public class SwingMain {
 
-			int count = 0;
 			private JFrame frame;
-			private JButton button;
 			private JPanel panel;
+
+			private JButton button;
 			private JLabel label;
+			private JFileChooser fileChooser;
+			private JTextField textField;
 
 			public SwingMain() {
 				frame = new JFrame();
-
-				button = new JButton("Click Me");
-				button.addActionListener(this);
-
 				panel = new JPanel();
 				panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 				panel.setLayout(new GridLayout(0, 1));
+
+				label = new JLabel("Pick an Image file");
+				panel.add(label);
+
+				button = new JButton("Browse");
+				button.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						if (fileChooser.showOpenDialog(button) == JFileChooser.APPROVE_OPTION) {
+							textField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+							// imgPath = textField.getText();
+							// isImgPathReady = true;
+						} else
+							System.out.println("No file was selected");
+					}
+				});
 				panel.add(button);
 
-				label = new JLabel("number of clicks: 0");
-				panel.add(label);
+				fileChooser = new JFileChooser();
+				textField = new JTextField(30);
+				textField.setText("none");
+				panel.add(textField);
+
+				button = new JButton("Send");
+				button.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						if (textField.getText() != "none" || textField.getText().length() > 4) {
+							imgPath = textField.getText();
+							isImgPathReady = true;
+						} else
+							System.out.println("No file was selected");
+					}
+				});
+				panel.add(new JLabel(""));
+				panel.add(button);
+				panel.add(new JLabel(""));
+				
 
 				frame.add(panel, BorderLayout.CENTER);
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.setTitle("Swing GUI");
+				frame.setTitle("NutriVision - Agent-based Calorie Counter");
 				frame.pack();
 				frame.setVisible(true);
 
 			}
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				count++;
-				label.setText("number of clicks: " + count);
-
-			}
-
 		}
 	}
 
