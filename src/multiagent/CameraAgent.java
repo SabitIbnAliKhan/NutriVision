@@ -20,7 +20,7 @@ import utils.Constants;
 
 public class CameraAgent extends ServiceAgent {
 
-	public Set<AID> classifierAgents = new HashSet<>();
+	public Set<AID> classifierAgents = new HashSet<>();// set that contains a list of agents
 
 	@Override
 	protected void setup() {
