@@ -75,7 +75,7 @@ public class InterfaceAgent extends ServiceAgent {
 				break;
 			case 1:
 				// send image file path from swingUI to CameraAgent
-				sendMsg("/Users/jakfromspace/Downloads/pasta-bowl.jpg", Constants.ImageSend, ACLMessage.INFORM,
+				sendMsg("C:/Users/Ahmad Masri/git/NutriVision/NutriVision/pasta-bowl.jpg", Constants.ImageSend, ACLMessage.INFORM,
 						myAgent.cameraAgents);
 				System.out.println(getLocalName() + " case1 - Image path sent to CameraAgent");
 				stateCounter = 2;

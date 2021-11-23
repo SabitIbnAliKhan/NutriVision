@@ -37,6 +37,7 @@ public class NutritionAgent extends ServiceAgent{
 	private class NutritionBehaviour extends SimpleBehaviour{
 		private NutritionAgent myAgent;
 	    private boolean finished = false;
+	    private String label, calorieCount;
 	    private int stateCounter = 0;
 	    
 		public NutritionBehaviour(){
@@ -52,18 +53,39 @@ public class NutritionAgent extends ServiceAgent{
 	        switch(stateCounter) {
 	        case 0: 
 	        	//listening for label input from Classifier
-	        	stateCounter = 1;
+				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+						MessageTemplate.MatchConversationId(Constants.LabelSend));
+				msg = myAgent.blockingReceive(template);
+				if (msg != null) {
+					System.out.println(getLocalName() + " received label from classifier");
+					label = msg.getContent();
+					stateCounter = 1;
+				}
 	        	break;
 	        case 1:
 	        	//send gateway the label   	
-	        	sendMsg("Here is the label", Constants.LabelSend, ACLMessage.REQUEST, myAgent.gatewayAgents);
-	            stateCounter = 2;
+	        	if(label!=null) {
+	        		sendMsg(label, Constants.LabelSend, ACLMessage.REQUEST, myAgent.gatewayAgents);
+		            stateCounter = 2;
+	        	}
 	            break;
 	        case 2:
 	        	//waiting for calorie count from gateway
+				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+						MessageTemplate.MatchConversationId(Constants.CalorieSend));
+				msg = myAgent.blockingReceive(template);
+				if (msg != null) {
+					System.out.println(getLocalName() + " received calorie count from classifier");
+					calorieCount = msg.getContent();
+					stateCounter = 3;
+				}
 	        	break;
 	        case 3:
 	        	//sending interface the calories
+	        	if(calorieCount!=null) {
+	        		sendMsg(calorieCount, Constants.CalorieSend, ACLMessage.INFORM, myAgent.interfaceAgents);
+		            stateCounter = 2;
+	        	}
 	        	finished = true;
 	        	break;
 			}
@@ -73,7 +95,6 @@ public class NutritionAgent extends ServiceAgent{
             ACLMessage msg = new ACLMessage(type);
             msg.setContent(content);
             msg.setConversationId(conversationId);
-            //add receivers
             for (AID agent: receivers) {
               msg.addReceiver(agent);
             }

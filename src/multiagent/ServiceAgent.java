@@ -32,6 +32,7 @@ public class ServiceAgent extends Agent {
 	}
 	
 	protected void takeDown() {
+		System.out.println(this.getLocalName() + " is now terminated");
 		try { DFService.deregister(this); }
 		catch (Exception ex) {}
 	}

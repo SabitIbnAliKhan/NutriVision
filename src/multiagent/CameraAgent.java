@@ -74,6 +74,7 @@ public class CameraAgent extends ServiceAgent {
 				System.out.println(getLocalName() + " sent base64 to Classifier");
 				System.out.println("base64 img:\n" + b64img + "\n--END--");
 				finished = true;
+				myAgent.doDelete();
 				break;
 			}
 		}
