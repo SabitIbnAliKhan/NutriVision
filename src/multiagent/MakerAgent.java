@@ -22,7 +22,7 @@ public class MakerAgent extends Agent {
 		createAgent("Camera-1", "multiagent.CameraAgent");
 		createAgent("Classifier-1", "multiagent.ClassifierAgent");
 		createAgent("Nutrition-1", "multiagent.NutritionAgent");
-		// createAgent("Gateway-1", "multiagent.GatewayAgent");
+		createAgent("Gateway-1", "multiagent.GatewayAgent");
 		System.out.println("======= START ======\n");
 	}
 

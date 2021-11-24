@@ -13,14 +13,16 @@ import utils.Constants;
 public class GatewayAgent extends ServiceAgent {
 
 	public Set<AID> classifierAgents = new HashSet<>();// set that contains a list of agents
-
+	public Set<AID> nutritionAgents = new HashSet<>();
+	
 	@Override
 	protected void setup() {
-		register(Constants.NutriQuery);
+		register(Constants.GatewayService);
 		addBehaviour(new TickerBehaviour(this, 2000) {
 			protected void onTick() {
 				classifierAgents = searchForService(Constants.ClassifierService);
-				if (classifierAgents.size() > 0) {
+				nutritionAgents = searchForService(Constants.NutritionService);
+				if (classifierAgents.size() > 0 && nutritionAgents.size() > 0) {
 					stop();
 					addBehaviour(new GatewayBehaviour());
 				}
@@ -31,10 +33,10 @@ public class GatewayAgent extends ServiceAgent {
 	private class GatewayBehaviour extends SimpleBehaviour {
 		private GatewayAgent myAgent;
 		private boolean finished = false;
-		// private BufferedImage image = null;
-		// private String imagePath = null;
 		private int stateCounter = 0;
-		// private final String formatName = "jpg";
+		private String base64img; 
+		private String label;
+		private String calories;
 
 		public GatewayBehaviour() {
 			super(GatewayAgent.this);
@@ -48,25 +50,37 @@ public class GatewayAgent extends ServiceAgent {
 
 			switch (stateCounter) {
 			case 0:
-				// listening for image input from Interface
-//			template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
-//					MessageTemplate.MatchConversationId(Constants.ImageSend));
-//			msg = myAgent.blockingReceive(template);
-//			if (msg != null) {
-//				System.out.println(getLocalName() + " received image path from interface");
-//				imagePath = msg.getContent();
-				stateCounter = 1;
-				// }
+				//listening for base64img from classifier
+				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+						MessageTemplate.MatchConversationId(Constants.Base64Send));
+				msg = myAgent.blockingReceive(template);
+				if (msg != null) {
+					base64img = msg.getContent();
+					System.out.println(getLocalName() + " received the base64 image from Classifier:\n " + base64img);
+					stateCounter = 1;
+				}
 				break;
 			case 1:
-				// send ClassifierAgent the base64 converted image
-//			image = readImage(imagePath);
-//			String b64img = imgToBase64String(image, formatName);
-//			sendMsg(b64img, Constants.Base64Send, ACLMessage.INFORM, myAgent.classifierAgents);
-//			System.out.println(getLocalName() + " sent base64 to Classifier");
-//			System.out.println("base64 img:\n" + b64img + "\n--END--");
+				//API call for label then send to classifier
+				//might cause asynchronous threads issue?
+				break;
+			case 2:
+				//listening for label from nutrition
+				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+						MessageTemplate.MatchConversationId(Constants.LabelSend));
+				msg = myAgent.blockingReceive(template);
+				if (msg != null) {
+					System.out.println(getLocalName() + " received the label from Nutrition");
+					label = msg.getContent();
+					stateCounter = 3;
+				}
+				break;
+			case 3:
+				//API call for calories
+				break;
+			case 4:
+				//send nutrition the calories
 				finished = true;
-				myAgent.doDelete();
 				break;
 			}
 		}
@@ -80,30 +94,6 @@ public class GatewayAgent extends ServiceAgent {
 			}
 			myAgent.send(msg);
 		}
-
-//	// image to Base64
-//	public static String imgToBase64String(final BufferedImage img, final String formatName) {
-//		final ByteArrayOutputStream os = new ByteArrayOutputStream();
-//		try {
-//			ImageIO.write(img, formatName, os);
-//			return Base64.getEncoder().encodeToString(os.toByteArray());
-//		} catch (final IOException ioe) {
-//			throw new UncheckedIOException(ioe);
-//		}
-//	}
-
-//	// read image from path
-//	public BufferedImage readImage(String path) {
-//		BufferedImage img = null;
-//		try {
-//			img = ImageIO.read(new File(path));
-//			return img;
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		return img;
-//	}
-
 		@Override
 		public boolean done() {
 			return finished;
