@@ -65,7 +65,8 @@ public class NutritionAgent extends ServiceAgent{
 	        case 1:
 	        	//send gateway the label   	
 	        	if(label!=null) {
-	        		sendMsg(label, Constants.LabelSend, ACLMessage.REQUEST, myAgent.gatewayAgents);
+	        		sendMsg(label, Constants.LabelSend, ACLMessage.INFORM, myAgent.gatewayAgents);
+					System.out.println(getLocalName() + " sent label to gateway");
 		            stateCounter = 2;
 	        	}
 	            break;
@@ -75,7 +76,7 @@ public class NutritionAgent extends ServiceAgent{
 						MessageTemplate.MatchConversationId(Constants.CalorieSend));
 				msg = myAgent.blockingReceive(template);
 				if (msg != null) {
-					System.out.println(getLocalName() + " received calorie count from classifier");
+					System.out.println(getLocalName() + " received calorie count from gateway");
 					calorieCount = msg.getContent();
 					stateCounter = 3;
 				}
