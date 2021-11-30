@@ -1,1 +1,1 @@
-http://10.12.139.205:7778/acc
+http://jawads-mbp.home:7778/acc
