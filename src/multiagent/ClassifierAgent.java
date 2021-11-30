@@ -22,8 +22,6 @@ public class ClassifierAgent extends ServiceAgent {
 			protected void onTick() {
 				gatewayAgents = searchForService(Constants.GatewayService);
 				nutritionAgents = searchForService(Constants.NutritionService);
-				// we only need one agent created per agent type
-				// TODO change the >= to > for gateway.size
 				if (gatewayAgents.size() >= 0 && nutritionAgents.size() > 0) {
 					stop();
 					addBehaviour(new ClassifierBehaviour());
