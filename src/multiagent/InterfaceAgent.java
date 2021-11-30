@@ -1,6 +1,7 @@
 package multiagent;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
@@ -135,6 +137,8 @@ public class InterfaceAgent extends ServiceAgent {
 				panel.add(label);
 
 				button = new JButton("Browse");
+				button.setBackground(Color.BLACK);
+				button.setForeground(new Color(80, 155, 200));
 				button.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent evt) {
@@ -149,6 +153,8 @@ public class InterfaceAgent extends ServiceAgent {
 				panel.add(button);
 
 				fileChooser = new JFileChooser();
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg");
+				fileChooser.setFileFilter(filter);
 				textField = new JTextField(30);
 				textField.setText("none");
 				panel.add(textField);
@@ -167,7 +173,6 @@ public class InterfaceAgent extends ServiceAgent {
 				panel.add(new JLabel(""));
 				panel.add(button);
 				panel.add(new JLabel(""));
-				
 
 				frame.add(panel, BorderLayout.CENTER);
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

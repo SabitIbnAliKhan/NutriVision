@@ -72,7 +72,7 @@ public class CameraAgent extends ServiceAgent {
 				String b64img = imgToBase64String(image, formatName);
 				sendMsg(b64img, Constants.Base64Send, ACLMessage.INFORM, myAgent.classifierAgents);
 				System.out.println(getLocalName() + " sent base64 to Classifier");
-				System.out.println("base64 img:\n" + b64img + "\n--END--");
+				System.out.println("base64 img size:\n" + b64img.length() + "\n--END--");
 				finished = true;
 //				myAgent.doDelete();
 				break;
