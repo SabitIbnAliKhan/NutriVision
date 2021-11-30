@@ -2,6 +2,7 @@ package multiagent;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,7 +52,8 @@ public class InterfaceAgent extends ServiceAgent {
 		private int stateCounter = 0;
 		private boolean isImgPathReady = false;
 		private String imgPath = "none";
-		private String nutriDataString = "nothing yet";
+		private JLabel label;
+		private String nutriDataString = "Pick an Image file";
 
 		public InterfaceBehaviour() {
 			super(InterfaceAgent.this);
@@ -67,7 +69,7 @@ public class InterfaceAgent extends ServiceAgent {
 
 			switch (stateCounter) {
 			case 0:
-				// wait for input from swingUI
+				// waiting for input from swingUI
 				if (isImgPathReady) {
 					stateCounter = 1;
 					isImgPathReady = false;
@@ -77,6 +79,7 @@ public class InterfaceAgent extends ServiceAgent {
 				// send image file path from swingUI to CameraAgent
 				sendMsg(imgPath, Constants.ImageSend, ACLMessage.INFORM, myAgent.cameraAgents);
 				System.out.println(getLocalName() + " case1 - Image path sent to CameraAgent");
+				label.setText("Loading...");
 				stateCounter = 2;
 				break;
 			case 2:
@@ -87,12 +90,14 @@ public class InterfaceAgent extends ServiceAgent {
 				if (msg != null) {
 					System.out.println(getLocalName() + " case2 - received reply from NutritionAgent");
 					nutriDataString = msg.getContent();
+					label.setText(nutriDataString);
 					stateCounter = 3;
 				}
 				break;
 			case 3:
 				// send back calorie data from NutritionAgent to swingUI
 				System.out.println(getLocalName() + " case3 - Calorie data sent to swingUI");
+				stateCounter = 0;
 				break;
 			default:
 				System.out.println(getLocalName() + " caseError - Invalid state. Resetting to 0");
@@ -121,9 +126,8 @@ public class InterfaceAgent extends ServiceAgent {
 
 			private JFrame frame;
 			private JPanel panel;
-
 			private JButton button;
-			private JLabel label;
+
 			private JFileChooser fileChooser;
 			private JTextField textField;
 
@@ -134,11 +138,15 @@ public class InterfaceAgent extends ServiceAgent {
 				panel.setLayout(new GridLayout(0, 1));
 
 				label = new JLabel("Pick an Image file");
+				label.setFont(new Font("Calibri", Font.BOLD, 20));
 				panel.add(label);
+				panel.add(new JLabel(""));
+				// panel.add(new JLabel("Pick an Image file"));
 
 				button = new JButton("Browse");
-				button.setBackground(Color.BLACK);
+				button.setBackground(Color.WHITE);
 				button.setForeground(new Color(80, 155, 200));
+
 				button.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent evt) {
@@ -159,15 +167,20 @@ public class InterfaceAgent extends ServiceAgent {
 				textField.setText("none");
 				panel.add(textField);
 
-				button = new JButton("Send");
+				button = new JButton("Send >");
+				button.setBackground(Color.WHITE);
+				button.setForeground(new Color(80, 155, 200));
 				button.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent evt) {
-						if (textField.getText() != "none" || textField.getText().length() > 4) {
+						System.out.println(textField.getText().length());
+						if (textField.getText().compareTo("none") != 0 || textField.getText().length() > 4) {
 							imgPath = textField.getText();
 							isImgPathReady = true;
-						} else
+						} else {
+							label.setText("Error: File does not exist!");
 							System.out.println("No file was selected");
+						}
 					}
 				});
 				panel.add(new JLabel(""));
