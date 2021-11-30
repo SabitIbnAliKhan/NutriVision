@@ -72,7 +72,7 @@ public class GatewayAgent extends ServiceAgent {
 				break;
 			case 1:
 				//API call for label then send to classifier
-				//Smartlens API was needed to turn base64 to label but the site is terminated...
+				//Smartlens API was needed to turn base64 to label but the site was terminated...
 				//We Assume the label in the JSON response to be Pasta for testing purposes
 				sendMsg("Pasta", Constants.LabelSend, ACLMessage.INFORM, myAgent.classifierAgents);
 				System.out.println(getLocalName() + " sent the label to Classifier");
@@ -91,10 +91,9 @@ public class GatewayAgent extends ServiceAgent {
 				break;
 			case 3:
 				//API call for calories
-				//String response = sendGetRequest("https://www.nutritionix.com/natural-demo?q=" + label);
-				sendPOSTRequest();
-				//System.out.println(response);
-				//parse calories from JSON response
+				sendPOSTRequest("https://postman-echo.com/post");
+				//After parsing calories from JSON response
+				calories = "290";
 				stateCounter = 4;
 				break;
 			case 4:
@@ -116,11 +115,11 @@ public class GatewayAgent extends ServiceAgent {
 			myAgent.send(msg);
 		}
 		
-		 private static void sendPOSTRequest(){
+		 private static void sendPOSTRequest(String uri){
 		        try {
 		            String post_data="key1=value1&key2=value2";
 
-		            URL url = new URL("https://postman-echo.com/post");
+		            URL url = new URL(uri);
 		            HttpURLConnection httpURLConnection=(HttpURLConnection)url.openConnection();
 		            httpURLConnection.setRequestMethod("POST");
 		            //adding header
@@ -134,10 +133,12 @@ public class GatewayAgent extends ServiceAgent {
 		            outputStream.flush();
 		            outputStream.close();
 
-
-
-		            System.out.println("Response Code "+httpURLConnection.getResponseCode());
-
+		            if (httpURLConnection.getResponseCode() > 299) {
+			            System.out.println("Unsuccessful Connection to NutritionxAPI" + " with Response Code "+httpURLConnection.getResponseCode());
+		            }
+		            else {
+			            System.out.println("Connected Successfully to NutritionxAPI" + " with Response Code "+httpURLConnection.getResponseCode());
+		            }
 		            String line="";
 		            InputStreamReader inputStreamReader=new InputStreamReader(httpURLConnection.getInputStream());
 		            BufferedReader bufferedReader=new BufferedReader(inputStreamReader);
@@ -147,52 +148,12 @@ public class GatewayAgent extends ServiceAgent {
 		            }
 		            bufferedReader.close();
 		            System.out.println("Response : "+response.toString());
-
-
-
 		        }
 		        catch (Exception e){
 		            e.printStackTrace();
 		            System.out.println("Error in Making POST Request");
 		        }
 		    }
-
-		 private static String sendGetRequest(String uri) {
-			StringBuffer responseContent = new StringBuffer();
-			BufferedReader reader;
-			HttpURLConnection connection;
-			String line;
-			try {
-				URL url = new URL(uri);
-				connection = (HttpURLConnection) url.openConnection();
-				connection.setRequestMethod("GET");
-				connection.setConnectTimeout(5000);
-				connection.setReadTimeout(5000);
-				int status = connection.getResponseCode();
-				System.out.println("Status: " + status);
-				
-				if (status > 299) {
-					reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-					while((line = reader.readLine()) != null) {
-						responseContent.append(line);
-					}
-					reader.close();
-				} else {
-					reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-					while((line = reader.readLine()) != null) {
-						responseContent.append(line);
-					}
-					reader.close();
-					return responseContent.toString();
-				}				
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-		
 		@Override
 		public boolean done() {
 			return finished;

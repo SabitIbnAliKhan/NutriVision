@@ -83,13 +83,14 @@ public class InterfaceAgent extends ServiceAgent {
 				stateCounter = 2;
 				break;
 			case 2:
-				// wait for processing and reply from NutritionAgent
+				// wait for processing and calorie reply from NutritionAgent
 				template = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
-						MessageTemplate.MatchConversationId(Constants.ImageSend));
+						MessageTemplate.MatchConversationId(Constants.CalorieSend));
 				msg = myAgent.blockingReceive(template);
 				if (msg != null) {
-					System.out.println(getLocalName() + " case2 - received reply from NutritionAgent");
+					System.out.println(getLocalName() + " case2 - received calories from NutritionAgent");
 					nutriDataString = msg.getContent();
+					System.out.println("Calories: " + nutriDataString);
 					label.setText(nutriDataString);
 					stateCounter = 3;
 				}
