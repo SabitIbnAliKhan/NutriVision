@@ -8,6 +8,8 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.json.JSONObject;
+
 import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
@@ -61,14 +63,13 @@ public class GatewayAgent extends ServiceAgent {
 				msg = myAgent.blockingReceive(template);
 				if (msg != null) {
 					base64img = msg.getContent();
-					System.out.println(getLocalName() + " received the base64 image from Classifier:\n " + base64img);
+					System.out.println(getLocalName() + " received the base64 image from Classifier");
 					stateCounter = 1;
 				}
 				break;
 			case 1:
 				// API call for label then send to classifier
-				// Smartlens API was needed to turn base64 to label but the site was
-				// terminated...
+				// Smartlens API was to base64 to label but the site was recently terminated...
 				// We Assume the label in the JSON response to be Pasta for testing purposes
 				sendMsg("Pasta", Constants.LabelSend, ACLMessage.INFORM, myAgent.classifierAgents);
 				System.out.println(getLocalName() + " sent the label to Classifier");
@@ -87,16 +88,16 @@ public class GatewayAgent extends ServiceAgent {
 				break;
 			case 3:
 				// API call for calories
-				sendPOSTRequest("https://postman-echo.com/post");
+				calories = sendPOSTRequest("https://trackapi.nutritionix.com/v2/natural/nutrients");
 				// After parsing calories from JSON response
-				calories = "290";
 				stateCounter = 4;
 				break;
 			case 4:
 				// send nutrition the calories
 				sendMsg(calories, Constants.CalorieSend, ACLMessage.INFORM, myAgent.nutritionAgents);
 				System.out.println(getLocalName() + " sent the calories to Nutrition");
-				finished = true;
+				stateCounter = 0;
+//				finished = true;
 				break;
 			}
 		}
@@ -111,16 +112,16 @@ public class GatewayAgent extends ServiceAgent {
 			myAgent.send(msg);
 		}
 
-		private static void sendPOSTRequest(String uri) {
+		private static String sendPOSTRequest(String uri) {
 			try {
-				String post_data = "key1=value1&key2=value2";
+				String post_data = "query=spaghetti";
 
 				URL url = new URL(uri);
 				HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
 				httpURLConnection.setRequestMethod("POST");
 				// adding header
-				httpURLConnection.setRequestProperty("Auth", "Token");
-				httpURLConnection.setRequestProperty("Data1", "Value1");
+				httpURLConnection.setRequestProperty("x-app-id", "1a3765de");
+				httpURLConnection.setRequestProperty("x-app-key", "fd7ad489d9e8967920c4d3db92c6bdc6");
 				httpURLConnection.setDoOutput(true);
 
 				// Adding Post Data
@@ -130,10 +131,10 @@ public class GatewayAgent extends ServiceAgent {
 				outputStream.close();
 
 				if (httpURLConnection.getResponseCode() > 299) {
-					System.out.println("Unsuccessful Connection to NutritionxAPI" + " with Response Code "
+					System.out.println("Unsuccessful Connection to NutritionxAPI. StatusCode: "
 							+ httpURLConnection.getResponseCode());
 				} else {
-					System.out.println("Connected Successfully to NutritionxAPI" + " with Response Code "
+					System.out.println("Connected Successfully to NutritionxAPI. StatusCode: "
 							+ httpURLConnection.getResponseCode());
 				}
 				String line = "";
@@ -145,10 +146,20 @@ public class GatewayAgent extends ServiceAgent {
 				}
 				bufferedReader.close();
 				System.out.println("Response : " + response.toString());
+				return parseJSONobject(response.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.out.println("Error in Making POST Request");
+				return "Could not make POST Request";
 			}
+		}
+
+		private static String parseJSONobject(String res) {
+			JSONObject json = new JSONObject(res);
+			String s = json.getJSONArray("foods").get(0).toString();
+			String rescalories = new JSONObject(s).get("nf_calories").toString();
+			System.out.println(rescalories);
+			return rescalories;
 		}
 
 		@Override

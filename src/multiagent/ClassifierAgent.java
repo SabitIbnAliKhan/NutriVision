@@ -81,7 +81,8 @@ public class ClassifierAgent extends ServiceAgent {
 			case 3:
 				// send NutritionAgent the label
 				sendMsg(label, Constants.LabelSend, ACLMessage.INFORM, myAgent.nutritionAgents);
-				finished = true;
+				stateCounter = 0;
+//				finished = true;
 				break;
 			}
 		}
