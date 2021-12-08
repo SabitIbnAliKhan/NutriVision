@@ -5,7 +5,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import jade.core.AID;
@@ -67,10 +70,14 @@ public class GatewayAgent extends ServiceAgent {
 				break;
 			case 1:
 				// API call for label then send to classifier
-				// Smartlens API was needed to turn base64 to label but the site was
-				// terminated...
-				// We Assume the label in the JSON response to be Pasta for testing purposes
-				sendMsg("Pasta", Constants.LabelSend, ACLMessage.INFORM, myAgent.classifierAgents);
+				// SmartLens API was shutdown
+				// We randomly pick the label from a list to mock the API response
+				List<String> givenList = Arrays.asList("Spaghetti", "Alfredo Pasta", "Chowmein", "Instant Noodles",
+						"Beef Ramen");
+				Random rand = new Random();
+				String randomElement = givenList.get(rand.nextInt(givenList.size()));
+
+				sendMsg(randomElement, Constants.LabelSend, ACLMessage.INFORM, myAgent.classifierAgents);
 				System.out.println(getLocalName() + " sent the label to Classifier");
 				stateCounter = 2;
 				break;
