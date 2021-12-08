@@ -3,10 +3,7 @@
 ## A Multi-Agent Oriented Calorie Counter that uses Computer Vision and Nutrition API to return calorie intake from an image
 
 ### Uses:
-- Flutter - Mobile App Framework
-- Java Spring - Server Backend
 - JADE - Agent Development Environment
-- Local in-app DB - User Data Storage
 - Gaia - Agent Methodology
 
  How to run project in eclipse:
@@ -34,6 +31,6 @@ Main Class: [jade.Boot]
 Set active checkbox: [+] Include system liberaries when searching for a main class
 
 Choose tab "Arguments" and fill next field:
-Program arguments: [-gui jade.Boot]
+Program arguments: [-gui MakerAgent:multiagent.MakerAgent]
 
 Press button "Run"

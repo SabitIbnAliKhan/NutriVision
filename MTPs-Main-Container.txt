@@ -1,1 +1,1 @@
-http://10.12.124.67:7778/acc
+http://sabits-air.home:7778/acc
