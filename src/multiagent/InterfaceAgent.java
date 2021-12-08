@@ -91,7 +91,7 @@ public class InterfaceAgent extends ServiceAgent {
 					System.out.println(getLocalName() + " case2 - received calories from NutritionAgent");
 					nutriDataString = msg.getContent();
 					System.out.println("Calories: " + nutriDataString);
-					label.setText("Spaghetti - " + nutriDataString + " kcal");
+					label.setText(nutriDataString + " kcal");
 					stateCounter = 3;
 				}
 				break;

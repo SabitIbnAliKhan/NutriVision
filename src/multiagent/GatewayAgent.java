@@ -5,7 +5,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import org.json.JSONObject;
@@ -71,7 +74,13 @@ public class GatewayAgent extends ServiceAgent {
 				// API call for label then send to classifier
 				// Smartlens API was to base64 to label but the site was recently terminated...
 				// We Assume the label in the JSON response to be Pasta for testing purposes
-				sendMsg("Pasta", Constants.LabelSend, ACLMessage.INFORM, myAgent.classifierAgents);
+				List<String> givenList = Arrays.asList("Spaghetti", "Alfredo Pasta", "Chowmein", "Instant Noodles",
+						"Beef Ramen");
+				Random rand = new Random();
+				String randomElement = givenList.get(rand.nextInt(givenList.size()));
+
+				sendMsg(randomElement, Constants.LabelSend, ACLMessage.INFORM, myAgent.classifierAgents);
+//				sendMsg("Pasta", Constants.LabelSend, ACLMessage.INFORM, myAgent.classifierAgents);
 				System.out.println(getLocalName() + " sent the label to Classifier");
 				stateCounter = 2;
 				break;
@@ -88,7 +97,7 @@ public class GatewayAgent extends ServiceAgent {
 				break;
 			case 3:
 				// API call for calories
-				calories = sendPOSTRequest("https://trackapi.nutritionix.com/v2/natural/nutrients");
+				calories = sendPOSTRequest("https://trackapi.nutritionix.com/v2/natural/nutrients", label);
 				// After parsing calories from JSON response
 				stateCounter = 4;
 				break;
@@ -112,9 +121,9 @@ public class GatewayAgent extends ServiceAgent {
 			myAgent.send(msg);
 		}
 
-		private static String sendPOSTRequest(String uri) {
+		private static String sendPOSTRequest(String uri, String label) {
 			try {
-				String post_data = "query=spaghetti";
+				String post_data = "query=" + label;
 
 				URL url = new URL(uri);
 				HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -146,7 +155,7 @@ public class GatewayAgent extends ServiceAgent {
 				}
 				bufferedReader.close();
 				System.out.println("Response : " + response.toString());
-				return parseJSONobject(response.toString());
+				return label + " - " + parseJSONobject(response.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.out.println("Error in Making POST Request");
