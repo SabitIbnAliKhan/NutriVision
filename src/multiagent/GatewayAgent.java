@@ -56,7 +56,7 @@ public class GatewayAgent extends ServiceAgent {
 		@Override
 		public void action() {
 			ACLMessage msg, reply;
-			MessageTemplate template;
+			MessageTemplate template; // blocks messages
 
 			switch (stateCounter) {
 			case 0:
