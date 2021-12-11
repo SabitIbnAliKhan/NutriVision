@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,8 +40,8 @@ public class InterfaceAgent extends ServiceAgent {
 				nutritionAgents = searchForService(Constants.NutritionService);
 				if (cameraAgents.size() > 0 && nutritionAgents.size() > 0) {
 					stop();
-					addBehaviour(new InterfaceBehaviour());
 				}
+				addBehaviour(new InterfaceBehaviour());
 			}
 		});
 	}
@@ -175,11 +176,18 @@ public class InterfaceAgent extends ServiceAgent {
 					@Override
 					public void actionPerformed(ActionEvent evt) {
 						System.out.println(textField.getText().length());
-						if (textField.getText().compareTo("none") != 0 || textField.getText().length() > 4) {
-							imgPath = textField.getText();
-							isImgPathReady = true;
+						if (textField.getText().compareTo("none") != 0 && textField.getText().length() > 4) {
+							Boolean b = new File(textField.getText()).exists();
+							System.out.println(b);
+							if (b) {
+								imgPath = textField.getText();
+								isImgPathReady = true;
+							} else {
+								label.setText("Error: File path does not exist!");
+								System.out.println("No file was selected");
+							}
 						} else {
-							label.setText("Error: File does not exist!");
+							label.setText("Error: File path is invalid!");
 							System.out.println("No file was selected");
 						}
 					}
